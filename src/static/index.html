@@ -46,5 +46,78 @@
     </footer>
 
     <script src="app.js"></script>
+    <script>
+      // Add/replace this script to render participants in activity cards
+      document.addEventListener("DOMContentLoaded", async () => {
+        const activitiesList = document.getElementById("activities-list");
+        const activitySelect = document.getElementById("activity");
+
+        // Fetch activities from API
+        const res = await fetch("/activities");
+        const activities = await res.json();
+
+        activitiesList.innerHTML = "";
+        activitySelect.innerHTML = '<option value="">-- Select an activity --</option>';
+
+        Object.entries(activities).forEach(([name, info]) => {
+          // Create card
+          const card = document.createElement("div");
+          card.className = "activity-card";
+
+          // Title
+          const title = document.createElement("h4");
+          title.textContent = name;
+          card.appendChild(title);
+
+          // Description
+          const desc = document.createElement("p");
+          desc.textContent = info.description;
+          card.appendChild(desc);
+
+          // Schedule
+          const sched = document.createElement("p");
+          sched.innerHTML = `<strong>Schedule:</strong> ${info.schedule}`;
+          card.appendChild(sched);
+
+          // Max participants
+          const max = document.createElement("p");
+          max.innerHTML = `<strong>Max Participants:</strong> ${info.max_participants}`;
+          card.appendChild(max);
+
+          // Participants section
+          const partSection = document.createElement("div");
+          partSection.className = "participants-section";
+          const partTitle = document.createElement("div");
+          partTitle.className = "participants-title";
+          partTitle.textContent = "Participants:";
+          partSection.appendChild(partTitle);
+
+          const partList = document.createElement("ul");
+          partList.className = "participants-list";
+          if (info.participants.length === 0) {
+            const none = document.createElement("li");
+            none.className = "participants-none";
+            none.textContent = "No participants yet";
+            partList.appendChild(none);
+          } else {
+            info.participants.forEach(email => {
+              const li = document.createElement("li");
+              li.textContent = email;
+              partList.appendChild(li);
+            });
+          }
+          partSection.appendChild(partList);
+          card.appendChild(partSection);
+
+          activitiesList.appendChild(card);
+
+          // Add to select
+          const opt = document.createElement("option");
+          opt.value = name;
+          opt.textContent = name;
+          activitySelect.appendChild(opt);
+        });
+      });
+    </script>
   </body>
 </html>
